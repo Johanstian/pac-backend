@@ -7,10 +7,23 @@ const User = require('./models/user');
 app.use(express.json());
 
 
-const dbURI = 'mongodb+srv://johan:johan@cluster.dkdvjfa.mongodb.net/pac?retryWrites=true&w=majority&appName=cluster';
-mongoose.connect(dbURI)
-    .then((result) => app.listen(3000))
-    .catch((err) => console.log(err))
+// require('dotenv').config();
+
+
+const connectDB = require('./database')
+
+connectDB();
+
+const PORT = process.env.PORT
+app.listen(PORT, () => {
+    console.log('Server running on port ' + PORT)
+})
+
+
+// const dbURI = 'mongodb+srv://johan:johan@cluster.dkdvjfa.mongodb.net/pac?retryWrites=true&w=majority&appName=cluster';
+// mongoose.connect(dbURI)
+//     .then((result) => app.listen(3000))
+//     .catch((err) => console.log(err))
 
 app.set('view engine', 'ejs');
 app.use(cors());
