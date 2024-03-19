@@ -1,23 +1,57 @@
+require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
+
+//EXPRESS APP
 const app = express();
-const Blog = require('./models/blog');
-const User = require('./models/user');
+const port = process.env.PORT || 5000;
+
+//MIDDLEWARES
+
 app.use(express.json());
+app.use(cors());
 
+const connectDB = require('./config/db')
+const userRoutes = require('./routes/users')
+// const errorHandler = require('./middlewares/error')
 
-// require('dotenv').config();
-
-
-const connectDB = require('./database')
-
+//CONNECT TO DB
 connectDB();
 
-const PORT = process.env.PORT
-app.listen(PORT, () => {
-    console.log('Server running on port ' + PORT)
+
+//ROUTES
+
+app.use('/api/users', userRoutes)
+
+app.use('/', (req, res) => {
+    return res.json({
+        message: 'Welcome to the PAC Backend'
+    });
 })
+
+// app.use();
+
+const server = app.listen(port, () => {
+    console.log('Server started listening on ' + port)
+})
+
+
+process.on('unhandledRejection', (error, promise) => {
+    console.log('Logged error ' + error);
+    server.close(() => process.exit(1));
+})
+
+
+
+
+
+
+
+
+// const PORT = process.env.PORT
+// app.listen(PORT, () => {
+//     console.log('Server running on port ' + PORT)
+// })
 
 
 // const dbURI = 'mongodb+srv://johan:johan@cluster.dkdvjfa.mongodb.net/pac?retryWrites=true&w=majority&appName=cluster';
@@ -25,20 +59,18 @@ app.listen(PORT, () => {
 //     .then((result) => app.listen(3000))
 //     .catch((err) => console.log(err))
 
-app.set('view engine', 'ejs');
-app.use(cors());
+// app.set('view engine', 'ejs');
+// app.use(cors());
 
-
-
-app.get('/users', (req, res) => {
-    User.find()
-        .then((result) => {
-            res.send(result)
-        })
-        .catch((err) => {
-            console.log(err)
-        })
-})
+// app.get('/users', (req, res) => {
+//     User.find()
+//         .then((result) => {
+//             res.send(result)
+//         })
+//         .catch((err) => {
+//             console.log(err)
+//         })
+// })
 
 
 
