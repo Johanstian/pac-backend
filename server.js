@@ -11,8 +11,9 @@ const port = process.env.PORT || 5000;
 app.use(express.json());
 app.use(cors());
 
-const connectDB = require('./config/db')
-const userRoutes = require('./routes/users')
+const connectDB = require('./config/db');
+const userRoutes = require('./routes/users');
+const tests = require('./routes/testsRoute');
 // const errorHandler = require('./middlewares/error')
 
 //CONNECT TO DB
@@ -21,7 +22,8 @@ connectDB();
 
 //ROUTES
 
-app.use('/api/users', userRoutes)
+app.use('/api', userRoutes);
+app.use('/api/tests', tests);
 
 app.use('/', (req, res) => {
     return res.json({
@@ -97,8 +99,8 @@ app.post('/identity/sign-up', (req, res) => {
         });
 });
 
-app.post('/identity/sign-in', (req, res) => {
-    const { username, password } = req.body;
+app.post('api/identity/sign-in', (req, res) => {
+    const { username, email } = req.body;
 
     // Verificar si el usuario existe en la base de datos
     User.findOne({ username })
@@ -108,7 +110,7 @@ app.post('/identity/sign-in', (req, res) => {
                 return res.status(404).send('El usuario no se ha encontrado');
             }
             // Si el usuario existe, verificar la contraseña
-            if (user.password !== password) {
+            if (user.password !== email) {
                 // Si la contraseña no coincide, enviar una respuesta de error
                 return res.status(401).send('Usuario y/o contraseña incorrectas');
             }
