@@ -14,6 +14,9 @@ app.use(cors());
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/users');
 const tests = require('./routes/testsRoute');
+const interview = require('./routes/interviewRoutes');
+const enlistment = require('./routes/enlistmentRoutes');
+const arl = require('./routes/arlRoutes');
 // const errorHandler = require('./middlewares/error')
 
 //CONNECT TO DB
@@ -24,6 +27,9 @@ connectDB();
 
 app.use('/api', userRoutes);
 app.use('/api/tests', tests);
+app.use('/api/interview', interview);
+app.use('/api/enlistment', enlistment);
+app.use('/api/arl', arl);
 
 app.use('/', (req, res) => {
     return res.json({

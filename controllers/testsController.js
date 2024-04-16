@@ -28,7 +28,6 @@ const createTest = async (req, res, next) => {
         const existingTest = await Tests.findOne({ cc: req.body.cc });
         if (existingTest) {
             res.status(400).json({message: 'Lo sentimos, solo puedes hacer este test una sola vez'})
-            // return next(new Error('Lo sentimos, solo puedes hacer este test una sola vez'));
         }
 
         const ccValues = [req.body.cc1, req.body.cc2, req.body.cc3, req.body.cc4, req.body.cc5, req.body.cc6];
@@ -81,4 +80,19 @@ const getAllTests = async (req, res, next) => {
     }
 }
 
-module.exports = {createTest, getAllTests}
+const getTestByCC = async (req, res, next) => {
+    try {
+        const cc = req.params.cc;
+        const generalData = await Tests.findOne({ cc });
+        if (!generalData) {
+            return res.status(404).json({ message: 'No se encontró la entrevista' });
+        }
+        // res.render('interviewPage', { interview });
+        res.status(200).send(generalData)
+    } catch (error) {
+        console.log(error);
+        return next(error);
+    }
+}
+
+module.exports = {createTest, getAllTests, getTestByCC}
