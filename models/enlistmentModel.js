@@ -17,19 +17,19 @@ const enlistmentSchema = new Schema({
     },
     workExperience: {
         type: String,
-        required: true
+        required: false
     },
     sanity: {
         type: String,
-        required: true
+        required: false
     },
     aptitudes: {
         type: String,
-        required: true
+        required: false
     },
     nonVerbal: {
         type: String,
-        required: true
+        required: false
     },
     finalReport: {
         type: String,

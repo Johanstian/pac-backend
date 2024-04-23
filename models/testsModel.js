@@ -149,6 +149,11 @@ const testsSchema = new Schema(
             type: String,
             required: [true, 'is required'],
         },
+        status: {
+            type: String,
+            enum: ['Pendiente', 'Concluido'],
+            default: 'Pendiente'
+        }
     }
 )
 

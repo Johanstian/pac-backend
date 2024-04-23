@@ -64,21 +64,40 @@ const createTest = async (req, res, next) => {
     }
 };
 
+// const getAllTests = async (req, res, next) => {
+//     try {
+//         const cc = req.query.cc;
+//         const generalData = await Tests.findOne({ cc })
+//         if (!generalData) {
+//             res.status(404);
+//             res.status(400).json({message: 'No se encontró el usuario.'})
+//         }
+//         res.status(200).send(generalData)
+//     } catch (error) {
+//         console.log(error);
+//         return next(error);
+//     }
+// }
+
 const getAllTests = async (req, res, next) => {
     try {
-        const cc = req.query.cc;
-        const generalData = await Tests.findOne({ cc })
-        if (!generalData) {
-            res.status(404);
-            res.status(400).json({message: 'No se encontró el usuario.'})
-            // return next(new Error('General data not found for the provider cc'));
+        // Obtener todos los tests
+        const tests = await Tests.find({});
+        
+        // Verificar si se encontraron tests
+        if (!tests || tests.length === 0) {
+            res.status(404).json({ message: 'No se encontraron tests.' });
+            return; // Termina la ejecución de la función después de enviar la respuesta
         }
-        res.status(200).send(generalData)
+        
+        // Enviar los tests encontrados como respuesta
+        res.status(200).json(tests);
     } catch (error) {
         console.log(error);
         return next(error);
     }
 }
+
 
 const getTestByCC = async (req, res, next) => {
     try {

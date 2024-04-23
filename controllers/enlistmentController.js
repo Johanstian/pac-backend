@@ -1,5 +1,5 @@
 const Enlistments = require('../models/enlistmentModel');
-const Interviews = require('../models/interviewModel')
+const Tests = require('../models/testsModel')
 
 const validateFields = (body, requiredFields) => {
     for (const field of requiredFields) {
@@ -13,7 +13,7 @@ const validateFields = (body, requiredFields) => {
 const createEnlistment = async (req, res, next) => {
     try {
         const requiredFields = [
-            'names', 'cc', 'test', 'workExperience', 'sanity', 'aptitudes', 'nonVerbal', 'finalReport'
+            'names', 'cc', 'test', 'finalReport'
         ];
         const missingField = validateFields(req.body, requiredFields);
         if (missingField) {
@@ -28,10 +28,10 @@ const createEnlistment = async (req, res, next) => {
 
         const dataEnlistment = await Enlistments.create(req.body);
 
-        const interviewToUpdate = await Interviews.findOne({ cc: req.body.cc });
-        if (interviewToUpdate) {
-            interviewToUpdate.status = 'Concluido';
-            await interviewToUpdate.save();
+        const testToUpdate = await Tests.findOne({ cc: req.body.cc });
+        if (testToUpdate) {
+            testToUpdate.status = 'Concluido';
+            await testToUpdate.save();
         }
 
         res.status(200).json({
