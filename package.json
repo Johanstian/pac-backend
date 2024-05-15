@@ -21,6 +21,6 @@
     "nodemailer": "^6.9.13",
     "pdf-puppeteer": "^1.1.11",
     "pdfkit": "^0.15.0",
-    "puppeteer": "^22.8.0"
+    "puppeteer": "^22.8.2"
   }
 }

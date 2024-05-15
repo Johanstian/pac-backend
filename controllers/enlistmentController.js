@@ -1,7 +1,6 @@
 const Enlistments = require('../models/enlistmentModel');
 const Interviews = require('../models/interviewModel');
-const PDFDocument = require('pdfkit');
-const pdf = require('html-pdf');
+const puppeteer = require('puppeteer');
 
 const validateFields = (body, requiredFields) => {
     for (const field of requiredFields) {
@@ -157,44 +156,36 @@ const getEnlistmentInfoAndDownloadPDF = async (req, res, next) => {
             return res.status(404).json({ message: 'El enlistment no fue encontrado' });
         }
 
-        const styles = `
-            .center {
-                display: flex;
-                justify-content: center;
-            }
-            .container {
-                font-family: Arial, sans-serif;
-                margin: 20px;
-            }
-            .header {
-                text-align: center;
-                font-size: 24px;
-                margin-bottom: 20px;
-            }
-            .info {
-                margin-bottom: 10px;
-            }
-            .m-l-5 {
-                margin-left: 5px;
-            }
-            /* Agregar más estilos según sea necesario */
-        `;
-
-        // Plantilla HTML para el PDF
-        const html = `
+        const htmlContent = `
             <!DOCTYPE html>
             <html lang="en">
             <head>
                 <meta charset="UTF-8">
                 <title>Enlistment Report</title>
                 <style>
-                    ${styles} /* Agregamos los estilos definidos arriba */
+                    .center {
+                        display: flex;
+                        justify-content: center;
+                    }
+                    .container {
+                        font-family: Arial, sans-serif;
+                        margin: 20px;
+                    }
+                    .header {
+                        text-align: center;
+                        font-size: 24px;
+                        margin-bottom: 20px;
+                    }
+                    .info {
+                        margin-bottom: 10px;
+                    }
+                    .m-l-5 {
+                        margin-left: 5px;
+                    }
                 </style>
             </head>
             <body>
-            <div class="container">
-                
-                
+                <div class="container">
                     <div class="header">
                         <h4><strong>ANÁLISIS DE RESULTADOS</strong></h4>
                     </div><br>
@@ -212,28 +203,18 @@ const getEnlistmentInfoAndDownloadPDF = async (req, res, next) => {
             </html>
         `;
 
-        const options = {
-            format: 'Letter',
-            orientation: 'portrait'
-        };
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
+        await page.setContent(htmlContent);
+        const pdfBuffer = await page.pdf({ format: 'A4' });
 
-        const pdfName = `enlistment_${cc}_${enlistment.names.replace(/\s/g, '_')}.pdf`; // Nombre del PDF
+        await browser.close();
 
-        pdf.create(html, options).toStream((err, stream) => {
-            if (err) {
-                console.log(err);
-                return next(err);
-            }
-        
-            // Configurar los encabezados para la descarga del PDF
-            res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', `attachment; filename=${pdfName}`);
-        
-            stream.pipe(res);
-        });
-
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=enlistment_${cc}_${enlistment.names.replace(/\s/g, '_')}.pdf`);
+        res.send(pdfBuffer);
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return next(error);
     }
 };
