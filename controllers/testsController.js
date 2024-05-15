@@ -44,8 +44,12 @@ const createTest = async (req, res, next) => {
         req.body.averageCE = roundedAverageCE;
 
         const tmValues = [req.body.tm1, req.body.tm2, req.body.tm3, req.body.tm4, req.body.tm5, req.body.tm6, req.body.tm7, req.body.tm8];
-        const totalM = tmValues.reduce((total, current) => total + current, 0)
+        const totalM = calculateTotal(tmValues); // Utiliza la función calculateTotal()
         req.body.totalM = totalM;
+
+        // const tmValues = [req.body.tm1, req.body.tm2, req.body.tm3, req.body.tm4, req.body.tm5, req.body.tm6, req.body.tm7, req.body.tm8];
+        // const totalM = tmValues.reduce((total, current) => total + current, 0)
+        // req.body.totalM = totalM;
 
         const aydValues = [req.body.ayd1, req.body.ayd2, req.body.ayd3, req.body.ayd4];
         const averageAyd = aydValues.reduce((total, current) => total + current, 0) / aydValues.length;
@@ -63,6 +67,17 @@ const createTest = async (req, res, next) => {
         return next(error);
     }
 };
+
+function calculateTotal(values) {
+    const total = values.reduce((acc, currentValue) => {
+        const numericValue = parseFloat(currentValue);
+        if (!isNaN(numericValue)) {
+            return acc + numericValue;
+        }
+        return acc;
+    }, 0);
+    return total;
+}
 
 // const getAllTests = async (req, res, next) => {
 //     try {

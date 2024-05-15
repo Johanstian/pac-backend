@@ -82,35 +82,35 @@ const testsSchema = new Schema(
             type: Number,
         },
         tm1: {
-            type: Number,
+            type: String,
             required: [true, 'is required'],
         },
         tm2: {
-            type: Number,
+            type: String,
             required: [true, 'is required'],
         },
         tm3: {
-            type: Number,
+            type: String,
             required: [true, 'is required'],
         },
         tm4: {
-            type: Number,
+            type: String,
             required: [true, 'is required'],
         },
         tm5: {
-            type: Number,
+            type: String,
             required: [true, 'is required'],
         },
         tm6: {
-            type: Number,
+            type: String,
             required: [true, 'is required'],
         },
         tm7: {
-            type: Number,
+            type: String,
             required: [true, 'is required'],
         },
         tm8: {
-            type: Number,
+            type: String,
             required: [true, 'is required'],
         },
         ayd1: {

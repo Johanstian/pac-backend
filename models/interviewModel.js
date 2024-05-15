@@ -31,10 +31,6 @@ const interviewSchema = new Schema({
         type: String,
         required: true
     },
-    line: {
-        type: String,
-        required: true
-    },
     interview: {
         type: String,
         required: true

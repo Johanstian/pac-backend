@@ -12,7 +12,7 @@ const validateFields = (body, requiredFields) => {
 const createInterview = async (req, res, next) => {
     try {
         const requiredFields = [
-            'date', 'cc', 'names', 'cellphone', 'test', 'review', 'techLead', 'line', 'interview', 'observations',
+            'date', 'cc', 'names', 'cellphone', 'test', 'review', 'techLead', 'interview', 'observations',
         ];
         const missingField = validateFields(req.body, requiredFields);
         if (missingField) {
@@ -24,6 +24,12 @@ const createInterview = async (req, res, next) => {
         if (existingInterview) {
             res.status(400).json({ message: 'Lo sentimos, solo puedes programar esta entrevista una sola vez' })
         }
+
+        // const testToUpdate = await Tests.findOne({ cc: req.body.cc });
+        // if (testToUpdate) {
+        //     testToUpdate.status = 'Concluido';
+        //     await testToUpdate.save();
+        // }
 
         const dataInterview = await Interviews.create(req.body);
         res.status(200).json({

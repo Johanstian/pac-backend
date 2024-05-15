@@ -35,6 +35,10 @@ const enlistmentSchema = new Schema({
         type: String,
         required: true
     },
+    technical: {
+        type: String,
+        required: false
+    }
 });
 
 const Enlistment = mongoose.model('Enlistment', enlistmentSchema);
