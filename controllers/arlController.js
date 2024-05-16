@@ -13,7 +13,7 @@ const validateFields = (body, requiredFields) => {
 const createArl = async (req, res, next) => {
     try {
         const requiredFields = [
-            'arlName', 'documentType', 'firstName', 'secondName', 'firstSurname', 'secondSurname', 'birthday', 'sex', 'email', 'address', 'cellphone', 'eps', 'afp', 'city'
+            'arlName', 'documentType', 'firstName', 'firstSurname', 'birthday', 'sex', 'email', 'address', 'cellphone', 'eps', 'afp', 'city'
         ];
         const missingField = validateFields(req.body, requiredFields);
         if (missingField) {
@@ -22,7 +22,8 @@ const createArl = async (req, res, next) => {
         }
         const existingArl = await Arls.findOne({ cc: req.body.cc });
         if (existingArl) {
-            res.status(400).json({ message: 'Lo sentimos, solo puedes afiliarte a la ARL una sola vez' });
+            res.status(400).json({ message: 'Lo sentimos, solo puedes afiliarte a la ARL una sola vez' });r
+            return;
         }
 
         const dataArl = await Arls.create(req.body);
@@ -55,7 +56,7 @@ const getAllArls = async (req, res, next) => {
             return res.status(400).json({ message: 'No se encontraron afiliaciones.' });
         }
 
-        const totalPages = Math.ceil(count); // Calcular el número total de páginas
+        const totalPages = Math.ceil(count);
         res.status(200).json({
             arls: dataArl,
             totalPages,

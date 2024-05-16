@@ -95,7 +95,7 @@ const getAllEnlistment = async (req, res, next) => {
             return res.status(400).json({ message: 'No se encontraron informes finales.' });
         }
 
-        const totalPages = Math.ceil(count); // Calcular el número 
+        const totalPages = Math.ceil(count);
         res.status(200).json({
             enlistment: dataEnlistment,
             totalPages,

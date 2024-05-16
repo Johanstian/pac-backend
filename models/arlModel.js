@@ -21,7 +21,7 @@ const arlSchema = new Schema({
     },
     secondName: {
         type: String,
-        required: true
+        required: false
     },
     firstSurname: {
         type: String,
@@ -29,7 +29,7 @@ const arlSchema = new Schema({
     },
     secondSurname: {
         type: String,
-        required: true
+        required: false
     },
     birthday: {
         type: Date,
