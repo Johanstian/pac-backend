@@ -1,6 +1,6 @@
-const Enlistments = require('../models/enlistmentModel');
-const Interviews = require('../models/interviewModel');
+const Postpsicosocial = require('../models/postPsicosocialModel');
 const puppeteer = require('puppeteer');
+const retests = require('../models/retestsModel');
 
 const validateFields = (body, requiredFields) => {
     for (const field of requiredFields) {
@@ -11,7 +11,7 @@ const validateFields = (body, requiredFields) => {
     return null;
 };
 
-const createEnlistment = async (req, res, next) => {
+const createPostPsicosocial = async (req, res, next) => {
     try {
         const requiredFields = ['names', 'cc', 'test', 'workExperience', 'sanity', 'aptitudes', 'nonVerbal', 'finalReport'];
         const missingField = validateFields(req.body, requiredFields);
@@ -20,17 +20,30 @@ const createEnlistment = async (req, res, next) => {
             return next(new Error(`${missingField} es requerido`));
         }
 
-        const existingEnlistment = await Enlistments.findOne({ cc: req.body.cc });
+        const existingEnlistment = await Postpsicosocial.findOne({ cc: req.body.cc });
         if (existingEnlistment) {
             return res.status(400).json({ message: 'Lo sentimos, solo puedes realizar un Reporte Final una sola vez' })
         }
 
-        const dataEnlistment = await Enlistments.create(req.body);
+        const dataEnlistment = await Postpsicosocial.create(req.body);
 
-        const testToUpdate = await Interviews.findOne({ cc: req.body.cc });
+        // const testToUpdate = await Tests.findOne({ cc: req.body.cc });
+        // if (testToUpdate) {
+        //     testToUpdate.status = 'Concluido';
+        //     await testToUpdate.save();
+        // }
+
+        const testToUpdate = await retests.findOne({ cc: req.body.cc });
         if (testToUpdate) {
-            testToUpdate.status = 'Concluido';
-            await testToUpdate.save();
+            if (testToUpdate.status === 'Pendiente') {
+                testToUpdate.status = 'Concluido';
+                await testToUpdate.save();
+                console.log(`Test con cc: ${req.body.cc} actualizado a 'Concluido'`);
+            } else {
+                console.log(`Test con cc: ${req.body.cc} no estaba en estado 'Pendiente'`);
+            }
+        } else {
+            console.log(`No se encontró un Test con cc: ${req.body.cc}`);
         }
 
         res.status(200).json({
@@ -54,7 +67,7 @@ const updateCompetencias = async (req, res, next) => {
         }
 
         // Buscar el enlistment existente
-        const existingEnlistment = await Enlistments.findOne({ cc });
+        const existingEnlistment = await Postpsicosocial.findOne({ cc });
         if (!existingEnlistment) {
             return res.status(404).json({ message: 'El enlistment no fue encontrado' });
         }
@@ -91,7 +104,7 @@ const updateEnlistment = async (req, res, next) => {
         const { cc, technical } = req.body;
 
         // Verificar si el enlistment existe
-        const existingEnlistment = await Enlistments.findOne({ cc });
+        const existingEnlistment = await Postpsicosocial.findOne({ cc });
         if (!existingEnlistment) {
             return res.status(404).json({ message: 'El enlistment no fue encontrado' });
         }
@@ -120,16 +133,16 @@ const updateEnlistment = async (req, res, next) => {
 
 
 
-const getAllEnlistment = async (req, res, next) => {
+const getAllPostpsicosocial = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
 
         const skip = (page - 1) * limit;
 
-        const count = await Enlistments.countDocuments();
+        const count = await Postpsicosocial.countDocuments();
 
-        const dataEnlistment = await Enlistments.find()
+        const dataEnlistment = await Postpsicosocial.find()
             .sort({ date: -1 })
             .skip(skip)
             .limit(limit);
@@ -149,10 +162,10 @@ const getAllEnlistment = async (req, res, next) => {
     }
 }
 
-const getEnlistmentByCC = async (req, res, next) => {
+const getPostpsicosocialByCC = async (req, res, next) => {
     try {
         const cc = req.params.cc;
-        const enlistment = await Enlistments.findOne({ cc });
+        const enlistment = await Postpsicosocial.findOne({ cc });
         if (!enlistment) {
             return res.status(404).json({ message: 'No se encontró el informe final' });
         }
@@ -192,7 +205,7 @@ const getEnlistmentByCC = async (req, res, next) => {
 const getEnlistmentInfoAndDownloadPDF = async (req, res, next) => {
     try {
         const { cc } = req.params;
-        const enlistment = await Enlistments.findOne({ cc });
+        const enlistment = await Postpsicosocial.findOne({ cc });
 
         if (!enlistment) {
             return res.status(404).json({ message: 'El enlistment no fue encontrado' });
@@ -261,4 +274,4 @@ const getEnlistmentInfoAndDownloadPDF = async (req, res, next) => {
     }
 };
 
-module.exports = { createEnlistment, updateEnlistment, getAllEnlistment, getEnlistmentByCC, getEnlistmentInfoAndDownloadPDF, updateCompetencias }
+module.exports = { createPostPsicosocial, updateEnlistment, getAllPostpsicosocial, getPostpsicosocialByCC, getEnlistmentInfoAndDownloadPDF, updateCompetencias }

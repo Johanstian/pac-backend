@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
-const enlistmentSchema = new Schema({
+const postpsicosocialSchema = new Schema({
     names: {
         type: String,
         required: true
@@ -58,6 +58,6 @@ const enlistmentSchema = new Schema({
     }
 });
 
-const Enlistment = mongoose.model('Enlistment', enlistmentSchema);
+const Postpsicosocial = mongoose.model('Postpsicosocial', postpsicosocialSchema);
 
-module.exports = Enlistment;
+module.exports = Postpsicosocial;

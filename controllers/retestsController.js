@@ -1,4 +1,5 @@
 const Tests = require('../models/testsModel');
+const Retests = require('../models/retestsModel');
 const Interviews = require('../models/interviewModel')
 
 const validateFields = (body, requiredFields) => {
@@ -10,7 +11,7 @@ const validateFields = (body, requiredFields) => {
     return null;
 };
 
-const createTest = async (req, res, next) => {
+const recreateTest = async (req, res, next) => {
     try {
         const requiredFields = [
             'cc', 'names', 'academicTitle', 'complement', 'experienceWork',
@@ -26,14 +27,9 @@ const createTest = async (req, res, next) => {
             return next(new Error(`${missingField} es requerido`));
         }
 
-        const existingTest = await Tests.findOne({ cc: req.body.cc });
+        const existingTest = await Retests.findOne({ cc: req.body.cc });
         if (existingTest) {
             res.status(400).json({message: 'Lo sentimos, solo puedes hacer este test una sola vez'})
-        }
-
-        const existingInterview = await Interviews.findOne({ cc: req.body.cc });
-        if (!existingInterview) {
-            return res.status(400).json({ message: 'No se ha encontrado una entrevista correspondiente a este CC' });
         }
 
         const ccValues = [req.body.cc1, req.body.cc2, req.body.cc3, req.body.cc4, req.body.cc5, req.body.cc6];
@@ -50,19 +46,15 @@ const createTest = async (req, res, next) => {
         req.body.averageCE = roundedAverageCE;
 
         const tmValues = [req.body.tm1, req.body.tm2, req.body.tm3, req.body.tm4, req.body.tm5, req.body.tm6, req.body.tm7, req.body.tm8];
-        const totalM = calculateTotal(tmValues); // Utiliza la función calculateTotal()
+        const totalM = reCalculateTotal(tmValues);
         req.body.totalM = totalM;
-
-        // const tmValues = [req.body.tm1, req.body.tm2, req.body.tm3, req.body.tm4, req.body.tm5, req.body.tm6, req.body.tm7, req.body.tm8];
-        // const totalM = tmValues.reduce((total, current) => total + current, 0)
-        // req.body.totalM = totalM;
 
         const aydValues = [req.body.ayd1, req.body.ayd2, req.body.ayd3, req.body.ayd4];
         const averageAyd = aydValues.reduce((total, current) => total + current, 0) / aydValues.length;
         const roundedAverageAYD = parseFloat(averageAyd.toFixed(2));
         req.body.averageAyd = roundedAverageAYD;
 
-        const generalData = await Tests.create(req.body);
+        const generalData = await Retests.create(req.body);
         res.status(200).json({
             success: true,
             generalData
@@ -74,7 +66,7 @@ const createTest = async (req, res, next) => {
     }
 };
 
-function calculateTotal(values) {
+function reCalculateTotal(values) {
     const total = values.reduce((acc, currentValue) => {
         const numericValue = parseFloat(currentValue);
         if (!isNaN(numericValue)) {
@@ -85,33 +77,13 @@ function calculateTotal(values) {
     return total;
 }
 
-// const getAllTests = async (req, res, next) => {
-//     try {
-//         const cc = req.query.cc;
-//         const generalData = await Tests.findOne({ cc })
-//         if (!generalData) {
-//             res.status(404);
-//             res.status(400).json({message: 'No se encontró el usuario.'})
-//         }
-//         res.status(200).send(generalData)
-//     } catch (error) {
-//         console.log(error);
-//         return next(error);
-//     }
-// }
-
-const getAllTests = async (req, res, next) => {
+const getAllRetests = async (req, res, next) => {
     try {
-        // Obtener todos los tests
-        const tests = await Tests.find({});
-        
-        // Verificar si se encontraron tests
+        const tests = await Retests.find({});
         if (!tests || tests.length === 0) {
             res.status(404).json({ message: 'No se encontraron tests.' });
-            return; // Termina la ejecución de la función después de enviar la respuesta
+            return;
         }
-        
-        // Enviar los tests encontrados como respuesta
         res.status(200).json(tests);
     } catch (error) {
         console.log(error);
@@ -120,14 +92,13 @@ const getAllTests = async (req, res, next) => {
 }
 
 
-const getTestByCC = async (req, res, next) => {
+const getRetestByCC = async (req, res, next) => {
     try {
         const cc = req.params.cc;
-        const generalData = await Tests.findOne({ cc });
+        const generalData = await Retests.findOne({ cc });
         if (!generalData) {
             return res.status(404).json({ message: 'No se encontró la entrevista' });
         }
-        // res.render('interviewPage', { interview });
         res.status(200).send(generalData)
     } catch (error) {
         console.log(error);
@@ -135,4 +106,4 @@ const getTestByCC = async (req, res, next) => {
     }
 }
 
-module.exports = {createTest, getAllTests, getTestByCC}
+module.exports = { recreateTest, getAllRetests, getRetestByCC }

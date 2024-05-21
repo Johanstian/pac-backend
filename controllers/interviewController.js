@@ -25,12 +25,6 @@ const createInterview = async (req, res, next) => {
             res.status(400).json({ message: 'Lo sentimos, solo puedes programar esta entrevista una sola vez' })
         }
 
-        // const testToUpdate = await Tests.findOne({ cc: req.body.cc });
-        // if (testToUpdate) {
-        //     testToUpdate.status = 'Concluido';
-        //     await testToUpdate.save();
-        // }
-
         const dataInterview = await Interviews.create(req.body);
         res.status(200).json({
             success: true,

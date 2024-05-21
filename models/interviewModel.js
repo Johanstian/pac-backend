@@ -43,6 +43,11 @@ const interviewSchema = new Schema({
         type: String,
         enum: ['Pendiente', 'Concluido'],
         default: 'Pendiente'
+    },
+    initialInterview: {
+        type: String,
+        enum: ['yes', 'no'],
+        default: 'yes'
     }
 });
 
