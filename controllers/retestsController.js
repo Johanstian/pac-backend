@@ -104,7 +104,7 @@ const getAllRetests = async (req, res, next) => {
             .skip(skip)
             .limit(limit);
         if (!dataRetests || dataRetests.length === 0) {
-            return res.status(400).json({ message: 'No se encontraron afiliaciones.' });
+            return res.status(400).json({ message: 'No se encontraron post-tests.' });
         }
 
         const totalPages = Math.ceil(count);
@@ -125,7 +125,7 @@ const getRetestByCC = async (req, res, next) => {
         const cc = req.params.cc;
         const generalData = await Retests.findOne({ cc });
         if (!generalData) {
-            return res.status(404).json({ message: 'No se encontró la entrevista' });
+            return res.status(404).json({ message: 'No se encontró el post-test' });
         }
         res.status(200).send(generalData)
     } catch (error) {
