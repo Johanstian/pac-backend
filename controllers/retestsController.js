@@ -28,7 +28,7 @@ const recreateTest = async (req, res, next) => {
 
         const existingTest = await Retests.findOne({ cc: req.body.cc });
         if (existingTest) {
-            res.status(400).json({message: 'Lo sentimos, solo puedes hacer este test una sola vez'})
+            return res.status(400).json({message: 'Lo sentimos, solo puedes hacer este test una sola vez'})
         }
 
         const ccValues = [req.body.cc1, req.body.cc2, req.body.cc3, req.body.cc4, req.body.cc5, req.body.cc6];
@@ -75,20 +75,6 @@ function reCalculateTotal(values) {
     }, 0);
     return total;
 }
-
-// const getAllRetests = async (req, res, next) => {
-//     try {
-//         const tests = await Retests.find({});
-//         if (!tests || tests.length === 0) {
-//             res.status(404).json({ message: 'No se encontraron tests.' });
-//             return;
-//         }
-//         res.status(200).json(tests);
-//     } catch (error) {
-//         console.log(error);
-//         return next(error);
-//     }
-// }
 
 const getAllRetests = async (req, res, next) => {
     try {
