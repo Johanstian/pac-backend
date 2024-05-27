@@ -1,6 +1,5 @@
-const Tests = require('../models/testsModel');
+const ExcelJS = require('exceljs');
 const Retests = require('../models/retestsModel');
-const Interviews = require('../models/interviewModel')
 
 const validateFields = (body, requiredFields) => {
     for (const field of requiredFields) {
@@ -77,14 +76,43 @@ function reCalculateTotal(values) {
     return total;
 }
 
+// const getAllRetests = async (req, res, next) => {
+//     try {
+//         const tests = await Retests.find({});
+//         if (!tests || tests.length === 0) {
+//             res.status(404).json({ message: 'No se encontraron tests.' });
+//             return;
+//         }
+//         res.status(200).json(tests);
+//     } catch (error) {
+//         console.log(error);
+//         return next(error);
+//     }
+// }
+
 const getAllRetests = async (req, res, next) => {
     try {
-        const tests = await Retests.find({});
-        if (!tests || tests.length === 0) {
-            res.status(404).json({ message: 'No se encontraron tests.' });
-            return;
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+
+        const skip = (page - 1) * limit;
+
+        const count = await Retests.countDocuments();
+
+        const dataRetests = await Retests.find()
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(limit);
+        if (!dataRetests || dataRetests.length === 0) {
+            return res.status(400).json({ message: 'No se encontraron afiliaciones.' });
         }
-        res.status(200).json(tests);
+
+        const totalPages = Math.ceil(count);
+        res.status(200).json({
+            retests: dataRetests,
+            totalPages,
+            currentPage: page
+        });
     } catch (error) {
         console.log(error);
         return next(error);
@@ -106,4 +134,34 @@ const getRetestByCC = async (req, res, next) => {
     }
 }
 
-module.exports = { recreateTest, getAllRetests, getRetestByCC }
+const exportToExcel = async (req, res, next) => {
+    try {
+        const dataRetest = await Retests.find().sort({ date: -1 });
+        if (!dataRetest || dataRetest.length === 0) {
+            return res.status(400).json({ message: 'No se encontraron post-tests.' });
+        }
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Post-Tests');
+        worksheet.addRow([
+            'Cédula',
+            'Nombres',
+            'Test',
+        ]);
+        dataRetest.forEach(retest => {
+            worksheet.addRow([
+                retest.cc,
+                retest.names,
+                retest.type,
+            ]);
+        });
+        const buffer = await workbook.xlsx.writeBuffer();
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=post-tests.xlsx');
+        res.status(200).send(buffer);
+    } catch (error) {
+        console.log(error);
+        return next(error);
+    }
+};
+
+module.exports = { recreateTest, getAllRetests, getRetestByCC, exportToExcel }
