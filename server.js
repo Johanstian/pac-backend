@@ -19,14 +19,12 @@ const interview = require('./routes/interviewRoutes');
 const enlistment = require('./routes/enlistmentRoutes');
 const psicosocial = require('./routes/postPsicosocialRoutes');
 const arl = require('./routes/arlRoutes');
-// const errorHandler = require('./middlewares/error')
+const general = require('./routes/appGeneralRoutes');
 
 //CONNECT TO DB
 connectDB();
 
-
 //ROUTES
-
 app.use('/api', userRoutes);
 app.use('/api/tests', tests);
 app.use('/api/retests', retests);
@@ -34,6 +32,7 @@ app.use('/api/interview', interview);
 app.use('/api/enlistment', enlistment);
 app.use('/api/psicosocial', psicosocial);
 app.use('/api/arl', arl);
+app.use('/api/general', general);
 
 app.use('/', (req, res) => {
     return res.json({
