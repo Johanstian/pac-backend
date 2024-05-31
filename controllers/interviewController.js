@@ -1,3 +1,4 @@
+const ExcelJS = require('exceljs');
 const Interviews = require('../models/interviewModel');
 
 const validateFields = (body, requiredFields) => {
@@ -112,5 +113,46 @@ const updateInterview = async (req, res, next) => {
     }
 }
 
+const exportToExcel = async (req, res, next) => {
+    try {
+        const dataRetest = await Interviews.find().sort({ date: -1 });
+        if (!dataRetest || dataRetest.length === 0) {
+            return res.status(400).json({ message: 'No se encontraron post-tests.' });
+        }
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Post-Tests');
+        worksheet.addRow([
+            'Fecha',
+            'Documento',
+            'Nombres',
+            'Test',
+            'Revisor',
+            'Lider Técnico',
+            'Psicológo/a',
+            'Observaciones',
+        ]);
+        dataRetest.forEach(retest => {
+            worksheet.addRow([
+                retest.date,
+                retest.cc,
+                retest.names,
+                retest.test,
+                retest.review,
+                retest.techLead,
+                retest.interview,
+                retest.observations,
+            ]);
+        });
+        const buffer = await workbook.xlsx.writeBuffer();
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=post-tests.xlsx');
+        res.status(200).send(buffer);
+    } catch (error) {
+        console.log(error);
+        return next(error);
+    }
+};
 
-module.exports = { createInterview, getAllInterviews, getInterviewByCC, updateInterview }
+
+
+module.exports = { createInterview, getAllInterviews, getInterviewByCC, updateInterview, exportToExcel }
