@@ -1,16 +1,17 @@
 const express = require('express');
+const upload = require('../middlewares/uploadFile');
 
 const router = express.Router();
 
-const { createComment, getComments, createProduct, getProduct, getProductById } = require('../controllers/appGeneral');
+const { createComment, getComments, createProduct, getProducts, getProductById } = require('../controllers/appGeneral');
 
 router.post('/createComment', createComment);
 
 router.get('/getComments', getComments);
 
-router.post('/createProduct', createProduct);
+router.post('/createProduct', upload.single('image'), createProduct);
 
-router.get('/product', getProduct);
+router.get('/products', getProducts);
 
 router.get('/products/:id', getProductById);
 
