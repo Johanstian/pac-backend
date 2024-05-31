@@ -37,21 +37,6 @@ const createInterview = async (req, res, next) => {
     }
 };
 
-// const getAllInterviews = async (req, res, next) => {
-//     try {
-//         const dataInterviews = await Interviews.find();
-//         if (!dataInterviews || !dataInterviews.length === 0) {
-//             // res.status(404);
-//             res.status(400).json({ message: 'No se encontraron entrevistas.' })
-//             // return next(new Error('General data not found for the provider cc'));
-//         }
-//         res.status(200).send(dataInterviews)
-//     } catch (error) {
-//         console.log(error);
-//         return next(error);
-//     }
-// }
-
 const getAllInterviews = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1; // Página solicitada (por defecto 1)
@@ -95,5 +80,37 @@ const getInterviewByCC = async (req, res, next) => {
     }
 }
 
+const updateInterview = async (req, res, next) => {
+    try {
 
-module.exports = { createInterview, getAllInterviews, getInterviewByCC }
+        const { cc } = req.params
+        const requiredFields = ['date', 'cc', 'names', 'cellphone', 'test', 'review', 'techLead', 'interview', 'observations'];
+        const missingField = validateFields(req.body, requiredFields);
+        if (missingField) {
+            res.status(400);
+            return next(new Error(`${missingField} es requerido`));
+        }
+
+        let existingInterview = await Interviews.findOne({ cc });
+        // if(!existingInterview) {
+        //     res.status(400);
+        //     return next(new Error('Entrevista no encontrada'));
+        // }
+
+        existingInterview.set(req.body);
+
+        existingInterview = await existingInterview.save();
+
+        res.status(200).json({
+            success: true,
+            existingInterview
+        });
+
+    } catch (error) {
+        console.error(error);
+        return next(error);
+    }
+}
+
+
+module.exports = { createInterview, getAllInterviews, getInterviewByCC, updateInterview }
