@@ -150,4 +150,22 @@ const exportToExcel = async (req, res, next) => {
     }
 };
 
-module.exports = { recreateTest, getAllRetests, getRetestByCC, exportToExcel }
+const getAll = async (req, res, next) => {
+    try {
+        const dataRetests = await Retests.find().sort({ date: -1 });
+        
+        if (!dataRetests || dataRetests.length === 0) {
+            return res.status(400).json({ message: 'No se encontraron post-tests.' });
+        }
+
+        res.status(200).json({
+            retests: dataRetests
+        });
+    } catch (error) {
+        console.log(error);
+        return next(error);
+    }
+}
+
+
+module.exports = { recreateTest, getAllRetests, getRetestByCC, exportToExcel, getAll }
