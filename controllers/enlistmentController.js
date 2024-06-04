@@ -1,6 +1,7 @@
 const Enlistments = require('../models/enlistmentModel');
 const Interviews = require('../models/interviewModel');
 const puppeteer = require('puppeteer');
+const ExcelJS = require('exceljs');
 
 const validateFields = (body, requiredFields) => {
     for (const field of requiredFields) {
@@ -115,10 +116,6 @@ const updateEnlistment = async (req, res, next) => {
         return next(error);
     }
 };
-
-
-
-
 
 const getAllEnlistment = async (req, res, next) => {
     try {
@@ -261,4 +258,54 @@ const getEnlistmentInfoAndDownloadPDF = async (req, res, next) => {
     }
 };
 
-module.exports = { createEnlistment, updateEnlistment, getAllEnlistment, getEnlistmentByCC, getEnlistmentInfoAndDownloadPDF, updateCompetencias }
+const exportToExcel = async (req, res, next) => {
+    try {
+        const dataEnlistment = await Enlistments.find().sort({ date: -1 });
+
+        if (!dataEnlistment || dataEnlistment.length === 0) {
+            return res.status(400).json({ message: 'No se encontraron informes finales.' });
+        }
+
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('ARLs');
+
+        worksheet.addRow([
+            'Documento',
+            'Nombres',
+            'Test',
+            'Experiencia laboral',
+            'Sensatez',
+            'Aptitudes',
+            'Comunicación no verbal',
+            'Informe final',
+            'Concepto técnico',
+            '',
+        ]);
+
+        dataEnlistment.forEach(enlistment => {
+            worksheet.addRow([
+                enlistment.cc,
+                enlistment.names,
+                enlistment.test,
+                enlistment.workExperience,
+                enlistment.sanity,
+                enlistment.aptitudes,
+                enlistment.nonVerbal,
+                enlistment.finalReport,
+                enlistment.technical,
+                ,
+            ]);
+        });
+
+        const buffer = await workbook.xlsx.writeBuffer();
+
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=arls.xlsx');
+        res.status(200).send(buffer);
+    } catch (error) {
+        console.log(error);
+        return next(error);
+    }
+};
+
+module.exports = { createEnlistment, updateEnlistment, getAllEnlistment, getEnlistmentByCC, getEnlistmentInfoAndDownloadPDF, updateCompetencias, exportToExcel }
