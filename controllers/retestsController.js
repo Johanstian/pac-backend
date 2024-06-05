@@ -152,6 +152,36 @@ const exportToExcel = async (req, res, next) => {
     }
 };
 
+const getExcelList = async (req, res, next) => {
+    try {
+        const dataRetest = await Retests.find().sort({ date: -1 });
+        if (!dataRetest || dataRetest.length === 0) {
+            return res.status(400).json({ message: 'No se encontraron post-tests.' });
+        }
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Post-Tests');
+        worksheet.addRow([
+            'Cédula',
+            'Nombres',
+            'Test',
+        ]);
+        dataRetest.forEach(retest => {
+            worksheet.addRow([
+                retest.cc,
+                retest.names,
+                retest.type,
+            ]);
+        });
+        const buffer = await workbook.xlsx.writeBuffer();
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=post-tests.xlsx');
+        res.status(200).send(buffer);
+    } catch (error) {
+        console.log(error);
+        return next(error);
+    }
+};
+
 const getAll = async (req, res, next) => {
     try {
         const dataRetests = await Retests.find().sort({ date: -1 });
@@ -170,4 +200,4 @@ const getAll = async (req, res, next) => {
 }
 
 
-module.exports = { recreateTest, getAllRetests, getRetestByCC, exportToExcel, getAll }
+module.exports = { recreateTest, getAllRetests, getRetestByCC, exportToExcel, getAll, getExcelList }

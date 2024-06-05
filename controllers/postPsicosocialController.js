@@ -1,6 +1,7 @@
 const Postpsicosocial = require('../models/postPsicosocialModel');
 const puppeteer = require('puppeteer');
 const retests = require('../models/retestsModel');
+const ExcelJS = require('exceljs');
 
 const validateFields = (body, requiredFields) => {
     for (const field of requiredFields) {
@@ -274,4 +275,72 @@ const getEnlistmentInfoAndDownloadPDF = async (req, res, next) => {
     }
 };
 
-module.exports = { createPostPsicosocial, updateEnlistment, getAllPostpsicosocial, getPostpsicosocialByCC, getEnlistmentInfoAndDownloadPDF, updateCompetencias }
+const getAll = async (req, res, next) => {
+    try {
+        const dataPostPsico = await Postpsicosocial.find().sort({ date: -1 });
+        
+        if (!dataPostPsico || dataPostPsico.length === 0) {
+            return res.status(400).json({ message: 'No se encontraron post-tests.' });
+        }
+
+        res.status(200).json({
+            retests: dataPostPsico
+        });
+    } catch (error) {
+        console.log(error);
+        return next(error);
+    }
+}
+
+const exportToExcel = async (req, res, next) => {
+    try {
+        const dataPostPsico = await Postpsicosocial.find().sort({ date: -1 });
+        if (!dataPostPsico || dataPostPsico.length === 0) {
+            return res.status(400).json({ message: 'No se encontraron post-tests.' });
+        }
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Post-Tests');
+        worksheet.addRow([
+            'Cédula',
+            'Nombres',
+            'Test',
+            'Estado',
+            'Experiencia laboral',
+            'Sensatez',
+            'Aptitudes',
+            'Comunicación no verbal',
+            'Informe final',
+            'Informe técnico',
+            'Competencias comunes',
+            'Competencias específicas',
+            'Comportamiento',
+        ]);
+        dataPostPsico.forEach(postpsico => {
+            worksheet.addRow([
+                postpsico.cc,
+                postpsico.names,
+                postpsico.type,
+                postpsico.status,
+                postpsico.workExperience,
+                postpsico.sanity,
+                postpsico.aptitudes,
+                postpsico.nonVerbal,
+                postpsico.finalReport,
+                postpsico.technical,
+                postpsico.cCompetence,
+                postpsico.eCompetence,
+                postpsico.aydCompetence
+                ,
+            ]);
+        });
+        const buffer = await workbook.xlsx.writeBuffer();
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=post-tests.xlsx');
+        res.status(200).send(buffer);
+    } catch (error) {
+        console.log(error);
+        return next(error);
+    }
+};
+
+module.exports = { createPostPsicosocial, updateEnlistment, getAllPostpsicosocial, getPostpsicosocialByCC, getEnlistmentInfoAndDownloadPDF, updateCompetencias, getAll, exportToExcel }
