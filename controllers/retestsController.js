@@ -132,12 +132,14 @@ const exportToExcel = async (req, res, next) => {
             'Cédula',
             'Nombres',
             'Test',
+            'Estado',
         ]);
         dataRetest.forEach(retest => {
             worksheet.addRow([
                 retest.cc,
                 retest.names,
                 retest.type,
+                retest.status,
             ]);
         });
         const buffer = await workbook.xlsx.writeBuffer();
