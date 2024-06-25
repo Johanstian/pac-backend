@@ -293,7 +293,6 @@ const exportToExcel = async (req, res, next) => {
                 enlistment.nonVerbal,
                 enlistment.finalReport,
                 enlistment.technical,
-                ,
             ]);
         });
 
@@ -308,4 +307,23 @@ const exportToExcel = async (req, res, next) => {
     }
 };
 
-module.exports = { createEnlistment, updateEnlistment, getAllEnlistment, getEnlistmentByCC, getEnlistmentInfoAndDownloadPDF, updateCompetencias, exportToExcel }
+const getAll = async (req, res, next) => {
+    try {
+        // Obtener todos los tests
+        const tests = await Enlistments.find({});
+        
+        // Verificar si se encontraron tests
+        if (!tests || tests.length === 0) {
+            res.status(404).json({ message: 'No se encontraron tests.' });
+            return; // Termina la ejecución de la función después de enviar la respuesta
+        }
+        
+        // Enviar los tests encontrados como respuesta
+        res.status(200).json(tests);
+    } catch (error) {
+        console.log(error);
+        return next(error);
+    }
+}
+
+module.exports = { createEnlistment, updateEnlistment, getAllEnlistment, getEnlistmentByCC, getEnlistmentInfoAndDownloadPDF, updateCompetencias, exportToExcel, getAll }
