@@ -116,23 +116,23 @@ const exportToExcel = async (req, res, next) => {
 
         dataArl.forEach(arl => {
             worksheet.addRow([
-                arl.documentType.toUpperCase(),
-                arl.cc.toUpperCase(),
+                arl.documentType,
+                arl.cc,
                 arl.firstSurname.toUpperCase(),
                 arl.secondSurname.toUpperCase(),
                 arl.firstName.toUpperCase(),
                 arl.secondName.toUpperCase(),
-                arl.birthday.toUpperCase(),
+                arl.birthday,
                 arl.sex.toUpperCase(),
-                arl.email.toUpperCase(),
+                arl.email,
                 '',
-                arl.city.toUpperCase(),
-                arl.address.toUpperCase(),
-                arl.cellphone.toUpperCase(),
+                arl.city,
+                arl.address,
+                arl.cellphone,
                 '',
-                arl.eps.toUpperCase(),
-                arl.afp.toUpperCase(),
-                arl.arlName.toUpperCase(),
+                arl.eps,
+                arl.afp,
+                arl.arlName,
             ]);
         });
 
