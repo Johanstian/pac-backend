@@ -1,5 +1,4 @@
 const express = require('express');
-const upload = require('../middlewares/uploadFile');
 
 const router = express.Router();
 
@@ -9,7 +8,7 @@ router.post('/createComment', createComment);
 
 router.get('/getComments', getComments);
 
-router.post('/createProduct', upload.single('image'), createProduct);
+// router.post('/createProduct', upload.single('image'), createProduct);
 
 router.get('/products', getProducts);
 

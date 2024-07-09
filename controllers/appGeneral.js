@@ -1,6 +1,5 @@
 const Comment = require('../models/appCommentModel');
 const Products = require('../models/appProductsModel');
-const uploadFile = require('../middlewares/uploadFile');
 
 const validateFields = (body, requiredFields) => {
     for (const field of requiredFields) {
