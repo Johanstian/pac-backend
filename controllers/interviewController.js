@@ -38,6 +38,41 @@ const createInterview = async (req, res, next) => {
     }
 };
 
+const getAll = async (req, res, next) => {
+    try {
+        const tests = await Interviews.find().sort({ date: -1 });
+
+        if (!tests || tests.length === 0) {
+            res.status(404).json({ message: 'No se encontraron tests.' });
+            return; // Termina la ejecución de la función después de enviar la respuesta
+        }
+        // Enviar los tests encontrados como respuesta
+        res.status(200).json({
+            tests: tests
+        });
+    } catch (error) {
+        console.log(error);
+        return next(error);
+    }
+}
+
+// const getAll = async (req, res, next) => {
+//     try {
+//         const dataRetests = await Retests.find().sort({ date: -1 });
+
+//         if (!dataRetests || dataRetests.length === 0) {
+//             return res.status(400).json({ message: 'No se encontraron post-tests.' });
+//         }
+
+//         res.status(200).json({
+//             retests: dataRetests
+//         });
+//     } catch (error) {
+//         console.log(error);
+//         return next(error);
+//     }
+// }
+
 const getAllInterviews = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1; // Página solicitada (por defecto 1)
@@ -93,13 +128,7 @@ const updateInterview = async (req, res, next) => {
         }
 
         let existingInterview = await Interviews.findOne({ cc });
-        // if(!existingInterview) {
-        //     res.status(400);
-        //     return next(new Error('Entrevista no encontrada'));
-        // }
-
         existingInterview.set(req.body);
-
         existingInterview = await existingInterview.save();
 
         res.status(200).json({
@@ -153,6 +182,30 @@ const exportToExcel = async (req, res, next) => {
     }
 };
 
+const conclude = async (req, res, next) => {
+    try {
+        const {cc} = req.params;
+
+        let existingInterview = await Interviews.findOne({ cc });
+        if(!existingInterview) {
+            return res.status(404).json({message: 'Entrevista no encontrada'});
+        }
+
+        existingInterview.status = 'Concluido';
+        existingInterview.set(req.body);
+        await existingInterview.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Entrevista concluída',
+            existingInterview
+        })
+    } catch (error) {
+        return next(error);
+        
+    }
+}
 
 
-module.exports = { createInterview, getAllInterviews, getInterviewByCC, updateInterview, exportToExcel }
+
+module.exports = { createInterview, getAllInterviews, getInterviewByCC, updateInterview, exportToExcel, getAll, conclude }
