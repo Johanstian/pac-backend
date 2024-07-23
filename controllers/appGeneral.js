@@ -56,21 +56,24 @@ const getComments = async (req, res, next) => {
 const createProduct = async (req, res, next) => {
     try {
         const requiredFields = [
-            'title', 'subtitle', 'phone', 'address', 'products'
+            'title', 'subtitle', 'phone', 'address', 'products', 'facebook', 'mail'
         ];
         const missingField = validateFields(req.body, requiredFields);
         if (missingField) {
             return res.status(400).json({ error: `${missingField} es requerido` });
         }
 
-        const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
-        const productData = { ...req.body, imageUrl };
+        // const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+        // const productData = { ...req.body, imageUrl };
 
         // const dataComment = await Products.create(req.body);
+
+        const productData = { ...req.body };
+
+
         const newProduct = await Products.create(productData);
         res.status(200).json({
             success: true,
-            // dataComment
             data: newProduct
         });
         

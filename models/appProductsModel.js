@@ -23,9 +23,13 @@ const productSchema = new Schema({
         type: String,
         required: true
     },
-    imageUrl: {
+    facebook: {
         type: String,
-        required: true
+        required: false
+    },
+    mail: {
+        type: String,
+        required: false
     }
 })
 
