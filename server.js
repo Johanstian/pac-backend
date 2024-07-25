@@ -33,6 +33,7 @@ app.use('/api/enlistment', enlistment);
 app.use('/api/psicosocial', psicosocial);
 app.use('/api/arl', arl);
 app.use('/api/general', general);
+app.use('/uploads', express.static('uploads'))
 
 app.use('/', (req, res) => {
     return res.json({

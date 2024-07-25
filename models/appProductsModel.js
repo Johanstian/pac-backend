@@ -30,6 +30,10 @@ const productSchema = new Schema({
     mail: {
         type: String,
         required: false
+    },
+    avatar: {
+        type: String,
+        required: false
     }
 })
 

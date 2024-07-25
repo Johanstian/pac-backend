@@ -1,5 +1,8 @@
 const Comment = require('../models/appCommentModel');
 const Products = require('../models/appProductsModel');
+const cloudinary = require('../config/cloudinary');
+const upload = require('../middlewares/multer');
+const Events = require('../models/event')
 
 const validateFields = (body, requiredFields) => {
     for (const field of requiredFields) {
@@ -20,14 +23,11 @@ const createComment = async (req, res, next) => {
             res.status(400);
             return next(new Error(`${missingField} es requerido`));
         }
-
         const dataComment = await Comment.create(req.body);
         res.status(200).json({
             success: true,
             dataComment
         })
-
-
     } catch (error) {
         console.log(error);
         return next(error);
@@ -55,6 +55,7 @@ const getComments = async (req, res, next) => {
 
 const createProduct = async (req, res, next) => {
     try {
+        console.log('File:', req.file);
         const requiredFields = [
             'title', 'subtitle', 'phone', 'address', 'products', 'facebook', 'mail'
         ];
@@ -63,20 +64,20 @@ const createProduct = async (req, res, next) => {
             return res.status(400).json({ error: `${missingField} es requerido` });
         }
 
-        // const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
-        // const productData = { ...req.body, imageUrl };
-
-        // const dataComment = await Products.create(req.body);
-
         const productData = { ...req.body };
 
+        if (req.file) {
+            // Sube la imagen a Cloudinary
+            const uploadResult = await cloudinary.uploader.upload(req.file.path);
+            productData.avatar = uploadResult.secure_url; // Guarda la URL segura de la imagen
+        }
 
         const newProduct = await Products.create(productData);
         res.status(200).json({
             success: true,
             data: newProduct
         });
-        
+
     } catch (error) {
         console.log(error);
         return next(error);
@@ -123,5 +124,62 @@ const getProductById = async (req, res, next) => {
     }
 };
 
+const uploadImage = async (req, res, next) => {
+    try {
+        // Verifica si se ha subido un archivo
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "No se ha proporcionado un archivo"
+            });
+        }
+        // Sube el archivo a Cloudinary
+        const result = await cloudinary.uploader.upload(req.file.path);
 
-module.exports = { createComment, getComments, createProduct, getProducts, getProductById }
+        res.status(200).json({
+            success: true,
+            message: "¡Imagen subida con éxito!",
+            data: result
+        });
+    } catch (error) {
+        console.error(error);
+        return next(error);
+    }
+};
+
+const createEvent = async (req, res, next) => {
+    try {
+        const requiredFields = [
+            'event', 'date'
+        ]
+        const missingField = validateFields(req.body, requiredFields)
+        if (missingField) {
+            res.status(400)
+            return next(new Error(`${missingField} es requerido`));
+        }
+        const dataEvent = await Events.create(req.body);
+        res.status(200).json({
+            success: true,
+            dataEvent
+        })
+    } catch (error) {
+        console.log(error);
+        return next(error);
+    }
+}
+
+const getEvent = async (req, res, next) => {
+    try {
+        const events = await Events.find({})
+        if (!events || events.length === 0) {
+            res.status(400).json({ message: 'No se encontraron eventos.' });
+            return;
+        }
+        res.status(200).json(events)
+    } catch (error) {
+        console.log(error);
+        return next(error);
+    }
+}
+
+module.exports = { createComment, getComments, createProduct, getProducts, getProductById, uploadImage, createEvent, getEvent }
