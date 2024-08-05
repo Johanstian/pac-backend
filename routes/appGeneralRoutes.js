@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const { createComment, getComments, createProduct, getProducts, getProductById, uploadImage, createEvent, getEvent } = require('../controllers/appGeneral');
+const { createComment, getComments, createProduct, getProducts, getProductById, uploadImage, createEvent, getEvent, createHome, getHome } = require('../controllers/appGeneral');
 
 const upload = require('../middlewares/multer')
 
@@ -12,9 +12,13 @@ router.get('/getComments', getComments);
 
 router.post('/createProduct', upload.single('avatar'), createProduct);
 
+router.post('/createHome', upload.single('avatar'), createHome);
+
 router.post('/upload', upload.single('image'), uploadImage)
 
 router.get('/products', getProducts);
+
+router.get('/getHome', getHome);
 
 router.get('/products/:id', getProductById);
 

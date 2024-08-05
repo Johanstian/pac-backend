@@ -2,7 +2,8 @@ const Comment = require('../models/appCommentModel');
 const Products = require('../models/appProductsModel');
 const cloudinary = require('../config/cloudinary');
 const upload = require('../middlewares/multer');
-const Events = require('../models/event')
+const Events = require('../models/event');
+const Home = require('../models/appHome');
 
 const validateFields = (body, requiredFields) => {
     for (const field of requiredFields) {
@@ -182,4 +183,54 @@ const getEvent = async (req, res, next) => {
     }
 }
 
-module.exports = { createComment, getComments, createProduct, getProducts, getProductById, uploadImage, createEvent, getEvent }
+const createHome = async (req, res, next) => {
+    try {
+        console.log('File:', req.file);
+        const requiredFields = [
+            'title'
+        ];
+        const missingField = validateFields(req.body, requiredFields);
+        if (missingField) {
+            return res.status(400).json({ error: `${missingField} es requerido` });
+        }
+
+        const homeData = { ...req.body };
+
+        if (req.file) {
+            // Sube la imagen a Cloudinary
+            const uploadResult = await cloudinary.uploader.upload(req.file.path);
+            homeData.avatar = uploadResult.secure_url; // Guarda la URL segura de la imagen
+        }
+
+        const newHome = await Home.create(homeData);
+        res.status(200).json({
+            success: true,
+            data: newHome
+        });
+
+    } catch (error) {
+        console.log(error);
+        return next(error);
+    }
+}
+
+const getHome = async (req, res, next) => {
+    try {
+        // Obtener todos los tests
+        const home = await Home.find({});
+
+        // Verificar si se encontraron tests
+        if (!home || home.length === 0) {
+            res.status(404).json({ message: 'No se encontraron homes.' });
+            return; // Termina la ejecución de la función después de enviar la respuesta
+        }
+
+        // Enviar los tests encontrados como respuesta
+        res.status(200).json(home);
+    } catch (error) {
+        console.log(error);
+        return next(error);
+    }
+}
+
+module.exports = { createComment, getComments, createProduct, getProducts, getProductById, uploadImage, createEvent, getEvent, createHome, getHome }
