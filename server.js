@@ -20,6 +20,7 @@ const enlistment = require('./routes/enlistmentRoutes');
 const psicosocial = require('./routes/postPsicosocialRoutes');
 const arl = require('./routes/arlRoutes');
 const general = require('./routes/appGeneralRoutes');
+const banner = require('./routes/appBannerRoutes');
 
 //CONNECT TO DB
 connectDB();
@@ -34,6 +35,7 @@ app.use('/api/psicosocial', psicosocial);
 app.use('/api/arl', arl);
 app.use('/api/general', general);
 app.use('/uploads', express.static('uploads'))
+app.use('/api/banner', banner)
 
 app.use('/', (req, res) => {
     return res.json({

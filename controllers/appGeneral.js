@@ -233,4 +233,29 @@ const getHome = async (req, res, next) => {
     }
 }
 
-module.exports = { createComment, getComments, createProduct, getProducts, getProductById, uploadImage, createEvent, getEvent, createHome, getHome }
+const deleteHome = async (req, res, next) => {
+    try {
+        const { public_id } = req.body;
+
+        if (!public_id) {
+            return res.status(400).json({ error: "El public_id es requerido" });
+        }
+
+        const result = await cloudinary.uploader.destroy(public_id);
+
+        if (result.result !== "ok") {
+            return res.status(400).json({ error: "Error al borrar la imagen" });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "¡Imagen borrada con éxito!"
+        });
+    } catch (error) {
+        console.error(error);
+        return next(error);
+    }
+};
+
+
+module.exports = { createComment, getComments, createProduct, getProducts, getProductById, uploadImage, createEvent, getEvent, createHome, getHome, deleteHome }
