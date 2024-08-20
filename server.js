@@ -21,6 +21,7 @@ const psicosocial = require('./routes/postPsicosocialRoutes');
 const arl = require('./routes/arlRoutes');
 const general = require('./routes/appGeneralRoutes');
 const banner = require('./routes/appBannerRoutes');
+const eventos = require('./routes/appEventosRoutes');
 
 //CONNECT TO DB
 connectDB();
@@ -36,6 +37,7 @@ app.use('/api/arl', arl);
 app.use('/api/general', general);
 app.use('/uploads', express.static('uploads'))
 app.use('/api/banner', banner)
+app.use('/api/eventos', eventos)
 
 app.use('/', (req, res) => {
     return res.json({
