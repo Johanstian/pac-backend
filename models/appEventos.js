@@ -12,7 +12,7 @@ const eventosSchema = new Schema({
         required: true
     },
     dateTechEvent: {
-        type: String,
+        type: Date,
         required: true
     },
     location: {
