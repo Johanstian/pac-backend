@@ -12,7 +12,7 @@ const validateFields = (body, requiredFields) => {
 
 const createEvents = async (req, res, next) => {
     try {
-        const requiredFields = ['title', 'description', 'date', 'location'];
+        const requiredFields = ['title', 'description', 'dateTechEvent', 'location'];
         const missingField = validateFields(req.body, requiredFields);
         if (missingField) {
             return res.status(400).json({ error: `${missingField} es requerido` });
