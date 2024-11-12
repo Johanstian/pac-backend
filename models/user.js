@@ -22,4 +22,8 @@ const userSchema = new mongoose.Schema(
     }
 );
 
+//Definir índice único para evitar duplicación
+
+
+
 module.exports = mongoose.model('User', userSchema);
