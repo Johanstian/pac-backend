@@ -28,6 +28,8 @@ const general = require('./routes/appGeneralRoutes');
 const banner = require('./routes/appBannerRoutes');
 const eventos = require('./routes/appEventosRoutes');
 const pdf = require('./routes/pdfRoutes');
+const contractor = require('./routes/contractorsRoutes');
+const cdp = require('./routes/cdpRoutes');
 
 //CONNECT TO DB
 connectDB();
@@ -45,6 +47,8 @@ app.use('/uploads', express.static('uploads'))
 app.use('/api/banner', banner);
 app.use('/api/eventos', eventos);
 app.use('/api/pdf', pdf);
+app.use('/api/contractor', contractor);
+app.use('/api/cdp', cdp);
 
 app.use('/', (req, res) => {
     return res.json({
