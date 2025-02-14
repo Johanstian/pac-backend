@@ -1,0 +1,48 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# Editor Configs y Archivos del SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Entornos y Credenciales
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Compilación y Build
+/dist/
+/build/
+/out/
+
+# Dependencias de Ionic o React Native
+.platforms/
+.plugins/
+
+# Bases de Datos y Dumps
+*.sqlite
+*.db
+*.db-journal
+
+# Otros
+coverage/
+*.pid
+*.seed
+*.log
+*.out
+
+# Mac y Linux
+*.swp
+*.swo
+*.swn
