@@ -5,16 +5,16 @@ const Schema = mongoose.Schema;
 const cdpSchema = new Schema({
     nombres: {
         type: String,
-        required: true,
+        required: false, // <-- Ya no es obligatorio
     },
     documento: {
         type: Number,
-        required: true,
+        required: false, // <-- Ya no es obligatorio
         unique: true
     },
     autorizacion: {
         type: String,
-        required: true
+        required: false, // <-- Ya no es obligatorio
     },
     fecha: {
         type: String,
@@ -22,41 +22,41 @@ const cdpSchema = new Schema({
     },
     objeto: {
         type: String,
-        required: true
+        required: false
     },
     resumido: {
         type: String,
-        required: true
+        required: false
     },
     largo: {
         type: String,
-        required: true
+        required: false
     },
     nombrerubro: {
         type: String,
-        required: true
+        required: false
     },
     valor: {
         type: Number,
-        required: true
+        required: false
     },
     valorletras: {
         type: String,
-        required: true
+        required: false
     },
     codigo: {
         type: String,
-        required: true
+        required: false
     },
     nombreproyecto: {
         type: String,
-        required: true
+        required: false
     },
     created_at: {
         type: Date,
         default: Date.now
     }
-})
+});
 
 const Cdp = mongoose.model('Cdp', cdpSchema);
 

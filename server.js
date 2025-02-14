@@ -74,9 +74,6 @@ app.post('/ocr', upload.single('image'), (req, res) => {
         });
 });
 
-
-
-
 // app.use();
 
 const server = app.listen(port, () => {

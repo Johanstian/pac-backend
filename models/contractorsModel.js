@@ -71,6 +71,10 @@ const contractorSchema = new Schema({
         type: String,
         required: true
     },
+    plazo: {
+        type: String,
+        required: true
+    },
     cdp: {
         type: Schema.Types.ObjectId,
         ref: 'Cdp'

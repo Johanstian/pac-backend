@@ -13,7 +13,7 @@ const validateFields = (body, requiredFields) => {
 
 const createContractor = async (req, res, next) => {
     try {
-        const { documento, contratista, invitacion, identificado, oficio, fechacdp, actividad, tipo, requisitoestudios, requisitoexperiencia, alternativaestudio, alternativaexperiencia } = req.body;
+        const { documento, contratista, invitacion, identificado, oficio, fechacdp, actividad, tipo, requisitoestudios, requisitoexperiencia, alternativaestudio, alternativaexperiencia, plazo } = req.body;
 
         // Buscar el Cdp por el documento
         const cdp = await Cdp.findOne({ documento });
@@ -36,6 +36,7 @@ const createContractor = async (req, res, next) => {
             alternativaestudio,
             requisitoexperiencia,
             alternativaexperiencia,
+            plazo,
             cdp: cdp._id,
             cdps: {
                 nombres: cdp.nombres,
@@ -52,10 +53,7 @@ const createContractor = async (req, res, next) => {
                 nombreproyecto: cdp.nombreproyecto
             }
         });
-
-        // Guardar el Contractor en la base de datos
         await contractor.save();
-
         res.status(201).json(contractor);
     } catch (error) {
         console.error(error);
@@ -125,7 +123,8 @@ const getOneContractor = async (req, res, next) => {
 const updateContractor = async (req, res, next) => {
     try {
         const { documento } = req.params
-        const requiredFields = ['documento', 'contratista', 'invitacion', 'identificado', 'oficio', 'fechacdp', 'actividad', 'tipo', 'requisitoestudios', 'requisitoexperiencia', 'alternativaestudio', 'alternativaexperiencia'];
+        const requiredFields = ['documento', 'contratista', 'invitacion', 'identificado', 'oficio', 'fechacdp', 'actividad', 
+            'tipo', 'requisitoestudios', 'requisitoexperiencia', 'alternativaestudio', 'alternativaexperiencia', 'plazo'];
         const missingField = validateFields(req.body, requiredFields);
         if (missingField) {
             res.status(400);

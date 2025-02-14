@@ -1,4 +1,8 @@
 const Cdp = require('../models/cdpModel');
+const fs = require('fs');
+const path = require('path');
+const PizZip = require('pizzip');
+const Docxtemplater = require('docxtemplater');
 
 const validateFields = (body, requiredFields) => {
     for (const field of requiredFields) {
@@ -142,4 +146,124 @@ const getCdpById = async (req, res, next) => {
     }
 }
 
-module.exports = { createCdp, getCdpPaginated, getAllCdps, updateCdp, getCdpById, getBySearch }
+const loadFile = (filePath) => {
+    return new Promise((resolve, reject) => {
+        fs.readFile(filePath, 'binary', (err, data) => {
+            if (err) reject(err);
+            resolve(data);
+        });
+    });
+};
+
+// Controlador para generar documentos
+const generateDocument = async (req, res) => {
+    try {
+        console.log("📥 Datos recibidos en backend:", req.body);
+
+        const contractor = req.body;
+        if (!contractor || Object.keys(contractor).length === 0) {
+            return res.status(400).json({ error: "No contractor data provided" });
+        }
+
+        // Ruta de la plantilla
+        const templatePath = path.resolve(__dirname, '../templates/cdp1.docx');
+        console.log("📂 Ruta de la plantilla:", templatePath);
+
+        if (!fs.existsSync(templatePath)) {
+            console.error("❌ ERROR: La plantilla no se encuentra en:", templatePath);
+            return res.status(500).json({ error: "Plantilla no encontrada en el servidor." });
+        }
+
+        const content = await loadFile(templatePath);
+        console.log("✅ Archivo leído correctamente");
+
+        const zip = new PizZip(content);
+        const doc = new Docxtemplater(zip, {
+            paragraphLoop: true,
+            linebreaks: true,
+        });
+
+        // Reemplazar variables en la plantilla con los datos del contractor
+        doc.render({
+            ...contractor // Esto pasa automáticamente todas las variables de `contractor`
+        });
+        
+
+        console.log("✅ Documento procesado correctamente");
+
+        // Generar el documento como buffer
+        const buffer = doc.getZip().generate({ type: 'nodebuffer' });
+
+        // Enviar el archivo directamente al frontend sin guardarlo en el servidor
+        res.set({
+            'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'Content-Disposition': `attachment; filename=${contractor.nombres || 'documento'}.docx`,
+        });
+
+        res.send(buffer);
+    } catch (error) {
+        console.error("❌ ERROR generando documento:", error);
+        res.status(500).json({ error: "Error interno en la generación del documento." });
+    }
+};
+
+const generateDocumentList = async (req, res) => {
+    try {
+        console.log("📥 Datos recibidos en backend:", req.body);
+
+        const { cdps } = req.body;
+        if (!cdps || !Array.isArray(cdps) || cdps.length === 0) {
+            return res.status(400).json({ error: "No contractor list provided" });
+        }
+
+        // Ruta de la plantilla
+        const templatePath = path.resolve(__dirname, '../templates/cdp.docx');
+        console.log("📂 Ruta de la plantilla:", templatePath);
+
+        if (!fs.existsSync(templatePath)) {
+            console.error("❌ ERROR: La plantilla no se encuentra en:", templatePath);
+            return res.status(500).json({ error: "Plantilla no encontrada en el servidor." });
+        }
+
+        const content = await loadFile(templatePath);
+        console.log("✅ Archivo leído correctamente");
+
+        const zip = new PizZip(content);
+        const doc = new Docxtemplater(zip, {
+            paragraphLoop: true,
+            linebreaks: true,
+        });
+
+        // Reemplazar variables en la plantilla con la lista de contractors
+        // doc.render({ cdps });
+        doc.render({
+            cdps: cdps.map(cdp => ({
+                ...cdp  // Esto copia todos los atributos sin necesidad de escribirlos uno por uno
+            }))
+        });
+        
+        console.log("Datos enviados a doc.render:", JSON.stringify({ cdps }, null, 2));
+        // doc.render({ cdps });
+
+
+        console.log("✅ Documento procesado correctamente");
+
+        // Generar el documento como buffer
+        const buffer = doc.getZip().generate({ type: 'nodebuffer' });
+
+        // Enviar el archivo directamente al frontend sin guardarlo en el servidor
+        res.set({
+            'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'Content-Disposition': 'attachment; filename=Listado_CDPs.docx',
+        });
+
+        res.send(buffer);
+    } catch (error) {
+        console.error("❌ ERROR generando documento:", error);
+        res.status(500).json({ error: "Error interno en la generación del documento." });
+    }
+};
+
+
+
+module.exports = { createCdp, getCdpPaginated, getAllCdps, updateCdp, getCdpById, getBySearch, generateDocument, generateDocumentList }
