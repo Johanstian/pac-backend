@@ -43,18 +43,11 @@ const getAllArls = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
-
-        console.log(`📊 Página solicitada: ${page}, Límite: ${limit}`);
-
         const skip = (page - 1) * limit;
-        console.log(`📊 Skip: ${skip}`);
-
         const count = await Arls.countDocuments();
-        console.log(`📊 Total documentos: ${count}`);
 
-        // ✅ USAR createdAt para ordenamiento consistente
         const dataArl = await Arls.find()
-            .sort({ createdAt: 1 }) // ✅ Ordenar por fecha de creación (más recientes primero)
+            .sort({ createdAt: 1 })
             .skip(skip)
             .limit(limit);
         
