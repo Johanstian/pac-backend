@@ -44,22 +44,33 @@ const getAllArls = async (req, res, next) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
 
+        console.log(`📊 Página solicitada: ${page}, Límite: ${limit}`);
+
         const skip = (page - 1) * limit;
+        console.log(`📊 Skip: ${skip}`);
 
         const count = await Arls.countDocuments();
+        console.log(`📊 Total documentos: ${count}`);
 
+        // ✅ USAR createdAt para ordenamiento consistente
         const dataArl = await Arls.find()
-            .sort({ date: -1 })
+            .sort({ createdAt: 1 }) // ✅ Ordenar por fecha de creación (más recientes primero)
             .skip(skip)
             .limit(limit);
-        if (!dataArl || dataArl.length === 0) {
+        
+        console.log(`📊 Documentos encontrados: ${dataArl.length}`);
+        
+        if (count === 0) {
             return res.status(400).json({ message: 'No se encontraron afiliaciones.' });
         }
 
-        const totalPages = Math.ceil(count);
+        const totalPages = Math.ceil(count / limit);
+        console.log(`📊 Total páginas: ${totalPages}`);
+        
         res.status(200).json({
             arls: dataArl,
             totalPages,
+            totalDocuments: count,
             currentPage: page
         });
     } catch (error) {
