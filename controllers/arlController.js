@@ -116,6 +116,9 @@ const exportToExcel = async (req, res, next) => {
             'EPS',
             'AFP',
             'ARL',
+            'Código DPTO',
+            'Cargo',
+            'NIT Indervalle'
         ]);
 
         dataArl.forEach(arl => {
@@ -137,6 +140,9 @@ const exportToExcel = async (req, res, next) => {
                 arl.eps,
                 arl.afp,
                 arl.arlName,
+                76,
+                1388,
+                '805012896-4'
             ]);
         });
 
