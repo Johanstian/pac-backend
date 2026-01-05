@@ -22,7 +22,7 @@ const createArl = async (req, res, next) => {
         }
         const existingArl = await Arls.findOne({ cc: req.body.cc });
         if (existingArl) {
-            res.status(400).json({ message: 'Lo sentimos, solo puedes afiliarte a la ARL una sola vez' });r
+            res.status(400).json({ message: 'Lo sentimos, solo puedes afiliarte a la ARL una sola vez' });
             return;
         }
 
@@ -44,30 +44,53 @@ const getAllArls = async (req, res, next) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
-        const count = await Arls.countDocuments();
+        const searchCc = req.query.cc ? req.query.cc.toString().trim() : null;
 
-        const dataArl = await Arls.find()
+        // Construir el filtro de búsqueda
+        let filter = {};
+        if (searchCc) {
+            // Si es un número completo, buscar exacto (más rápido y eficiente)
+            const ccNumber = parseInt(searchCc);
+            if (!isNaN(ccNumber) && ccNumber.toString() === searchCc) {
+                filter.cc = ccNumber; // Búsqueda exacta - usa índices
+            } else {
+                // Búsqueda parcial - usa expresión simple con $expr
+                filter = {
+                    $expr: {
+                        $regexMatch: {
+                            input: { $toString: "$cc" },
+                            regex: searchCc
+                        }
+                    }
+                };
+            }
+        }
+
+        // Contar y buscar documentos con el filtro aplicado
+        const count = await Arls.countDocuments(filter);
+        const dataArl = await Arls.find(filter)
             .sort({ createdAt: 1 })
             .skip(skip)
             .limit(limit);
         
-        console.log(`📊 Documentos encontrados: ${dataArl.length}`);
-        
         if (count === 0) {
-            return res.status(400).json({ message: 'No se encontraron afiliaciones.' });
+            const message = searchCc 
+                ? `No se encontraron afiliaciones con cédula que contenga "${searchCc}".` 
+                : 'No se encontraron afiliaciones.';
+            return res.status(400).json({ message });
         }
 
         const totalPages = Math.ceil(count / limit);
-        console.log(`📊 Total páginas: ${totalPages}`);
         
         res.status(200).json({
             arls: dataArl,
             totalPages,
             totalDocuments: count,
-            currentPage: page
+            currentPage: page,
+            searchTerm: searchCc || null
         });
     } catch (error) {
-        console.log(error);
+        console.log('❌ Error en getAllArls:', error);
         return next(error);
     }
 }
