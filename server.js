@@ -11,7 +11,17 @@ const port = process.env.PORT || 5000;
 //MIDDLEWARES
 
 app.use(express.json());
-app.use(cors());
+
+// Configuración de CORS - permite todos los orígenes
+const corsOptions = {
+    origin: '*', // Permite todos los orígenes
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    optionsSuccessStatus: 200 // Para navegadores legacy que no soportan 204
+    // Nota: credentials: true NO es compatible con origin: '*'
+};
+
+app.use(cors(corsOptions));
 
 // app.use(bodyParser.json());
 // app.use(bodyParser.urlencoded({ extended: true }));
