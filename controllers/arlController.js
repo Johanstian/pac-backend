@@ -109,6 +109,107 @@ const getArlByCc = async (req, res, next) => {
     }
 }
 
+const getArlById = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        
+        // Validar que el ID tenga el formato correcto de MongoDB
+        if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.status(400).json({ message: 'ID inválido' });
+        }
+
+        const arl = await Arls.findById(id);
+        if (!arl) {
+            return res.status(404).json({ message: 'No se encontró la afiliación con el ID proporcionado' });
+        }
+
+        res.status(200).json({
+            success: true,
+            arl
+        });
+    } catch (error) {
+        console.log('❌ Error en getArlById:', error);
+        return next(error);
+    }
+}
+
+const updateArl = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const updateData = req.body;
+
+        // Validar que el ID tenga el formato correcto de MongoDB
+        if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.status(400).json({ message: 'ID inválido' });
+        }
+
+        // Verificar que la ARL existe
+        const existingArl = await Arls.findById(id);
+        if (!existingArl) {
+            return res.status(404).json({ message: 'No se encontró la afiliación con el ID proporcionado' });
+        }
+
+        // Si se está actualizando la cédula, verificar que no exista otra ARL con esa cédula
+        if (updateData.cc && updateData.cc !== existingArl.cc) {
+            const arlWithSameCc = await Arls.findOne({ cc: updateData.cc });
+            if (arlWithSameCc && arlWithSameCc._id.toString() !== id) {
+                return res.status(400).json({ 
+                    message: 'Ya existe otra afiliación con la cédula proporcionada' 
+                });
+            }
+        }
+
+        // Actualizar la ARL
+        const updatedArl = await Arls.findByIdAndUpdate(
+            id,
+            { $set: updateData },
+            { new: true, runValidators: true }
+        );
+
+        res.status(200).json({
+            success: true,
+            message: 'Afiliación actualizada correctamente',
+            arl: updatedArl
+        });
+    } catch (error) {
+        console.log('❌ Error en updateArl:', error);
+        return next(error);
+    }
+}
+
+const deleteArl = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        // Validar que el ID tenga el formato correcto de MongoDB
+        if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.status(400).json({ message: 'ID inválido' });
+        }
+
+        // Verificar que la ARL existe antes de eliminar
+        const existingArl = await Arls.findById(id);
+        if (!existingArl) {
+            return res.status(404).json({ message: 'No se encontró la afiliación con el ID proporcionado' });
+        }
+
+        // Eliminar la ARL
+        await Arls.findByIdAndDelete(id);
+
+        res.status(200).json({
+            success: true,
+            message: 'Afiliación eliminada correctamente',
+            deletedArl: {
+                id: existingArl._id,
+                cc: existingArl.cc,
+                nombre: `${existingArl.firstName} ${existingArl.firstSurname}`
+            }
+        });
+    } catch (error) {
+        console.log('❌ Error en deleteArl:', error);
+        return next(error);
+    }
+}
+
 
 const exportToExcel = async (req, res, next) => {
     try {
@@ -181,4 +282,4 @@ const exportToExcel = async (req, res, next) => {
 };
 
 
-module.exports = { createArl, getAllArls, getArlByCc, exportToExcel }
+module.exports = { createArl, getAllArls, getArlByCc, getArlById, updateArl, deleteArl, exportToExcel }
